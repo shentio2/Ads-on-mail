@@ -1,5 +1,5 @@
 # About
-- Program to delete ads recived on e-mail accounts. 
+- Program to delete ads e-mails recived on mail accounts.
 - Enables multiple accounts connected and processed at once
 - Uses database in user app data directory to store information about user data*, logs and domain specific page elements (*see Known issues section)
 - Make implementing functionality for new domains easier by providing class ```Common``` with basic configuration, functions, error handling, database access, logs handling and data gathering<br>

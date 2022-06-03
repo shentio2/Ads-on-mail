@@ -1,4 +1,3 @@
-from lib2to3.pgen2.driver import Driver
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.safari.options import Options as SafariOptions
@@ -14,7 +13,6 @@ import inspect
 import multiprocessing
 import functools
 import os
-import platform
 import appdirs
 import sys
 import shutil
