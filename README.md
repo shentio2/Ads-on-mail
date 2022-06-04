@@ -1,5 +1,6 @@
 # About
-- Program to delete ads e-mails recived on mail accounts.
+- Program to delete ads recived on e-mail accounts. 
+- Runs on system startup and then accordingly to time interval specified during setup (default 30 minutes, for example: 10:17, 10:30, 11:00 and so on)
 - Enables multiple accounts connected and processed at once
 - Uses database in user app data directory to store information about user data*, logs and domain specific page elements (*see Known issues section)
 - Make implementing functionality for new domains easier by providing class ```Common``` with basic configuration, functions, error handling, database access, logs handling and data gathering<br>
@@ -25,6 +26,6 @@ To run as .py only two first steps from above section are required
 
 
 # Known issues:
-- passwords are stored as plain text in database that needs no authentication. Passwords can be stored in decrypted form, but they have to be encrypted at the certain point in program anyway (when filling login input) and that would require storing keys as well. Possible solution is to add password to database, but it hasn't been implemented by me yet.
+- passwords are stored as plain text in database that needs no authentication. Passwords can be stored in decrypted form, but they have to be encrypted at the certain point in program anyway (when filling login input) and that would require storing keys as well.
 - when computer is put out of sleep mode, script does not run immediately but sleeps as it has never been in a sleep mode (but it's not the case when computer is turned off/on)
 - tested only on Windows so there is a chance it doesn't work on other operational systems even though there is os-dependent functionality implemented (like user app data path, browser used by webdriver)
