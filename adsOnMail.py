@@ -273,7 +273,7 @@ class DriverSetup:
 class Common:
     '''
     Base class to all domain specific classes\n
-    Provide basic configuration, functions, error handling, database access, data gathering
+    Provide basic configuration, functions, error handling, database access, logs handling and data gathering
     '''
     def __init__(self, userLogin, userPassword, timeInterval, domain):
         self.database = None
@@ -286,6 +286,9 @@ class Common:
         self.loopIndex = 0
         self.nSelectedMessages = 0
         self._config = DriverSetup()
+        self.defaultNTrialsBeforeError = 5
+        self.defaultTimeIntervalBetweenTrials = 0.2
+        self.defaultRefreshOnError = False
         
     def setup(self):
         self.database = Database()
@@ -314,6 +317,12 @@ class Common:
             lambda x: x.execute_script("return document.readyState === 'complete'")
         )
         
+    def refreshPage(self, additionalSleepTime = 0):
+        self.driver.refresh()
+        self.waitForPage()
+        if additionalSleepTime:
+            time.sleep(additionalSleepTime)
+        
     def fillInput(self, inputElement, value, nTries=5):
         for index in range(nTries):
             try:
@@ -336,18 +345,24 @@ class Common:
         
     
     def _getParameter(self, function, functionKwargs, paramName, defaultVal):
+        '''
+        Returns `paramName` value passed to `function` if `paramName` was passed to `function` or \n
+        returns `paramName` default value if `function` has default value or \n
+        returns `defaultVal`
+        '''
         param = functionKwargs.get(paramName)
         if param is None:
             pom = inspect.signature(function).parameters.get(paramName)
-            nTries = pom.default if pom is not None else defaultVal
-        return nTries
+            param = pom.default if pom is not None else defaultVal
+        return param
 
     def _errorHandler(function):
         @functools.wraps(function)
         def modFun(*args, **kwargs):
             classSelf = args[0] # first arg passed to `function` is `self`
-            nTries = classSelf._getParameter(function, kwargs, 'nTries', 5)
-            tryAgainInterval = classSelf._getParameter(function, kwargs, 'tryAgainInterval', 0.2)
+            nTries = classSelf._getParameter(function, kwargs, 'nTries', classSelf.defaultNTrialsBeforeError)
+            tryAgainInterval = classSelf._getParameter(function, kwargs, 'tryAgainInterval', classSelf.defaultTimeIntervalBetweenTrials)
+            refreshOnError = classSelf._getParameter(function, kwargs, 'refreshOnError', classSelf.defaultRefreshOnError)
             
             for index in range(nTries):
                 try:
@@ -355,25 +370,27 @@ class Common:
                 except:
                     if index < nTries-1:
                         time.sleep(tryAgainInterval)
+                        if refreshOnError:
+                            classSelf.refreshPage()
                     else:
                         classSelf.writeLog(errorInfo = traceback.format_exc())
                         raise NoSuccessInNTrials
         return modFun
                 
     @_errorHandler
-    def runPage(self, tryAgainInterval = 30):
+    def runPage(self, tryAgainInterval = 30, **kwargs):
         pageAddress = self.database.getPageAddress(self.domain)
         self.driver.get(pageAddress)
         
     @_errorHandler
-    def acceptCookies(self):
+    def acceptCookies(self, **kwargs):
         buttonInfo = self.info['acceptCookies']
         acceptCookiesButton = self.waitForElement(buttonInfo['by'], buttonInfo['value'])
         if acceptCookiesButton is not None:
             self.clickOnElement(acceptCookiesButton)
     
     @_errorHandler
-    def login(self):
+    def login(self, refreshOnError = True, **kwargs):
         loginInfo = self.info['loginInput']
         passwordInfo = self.info['passwordInput']
         buttonInfo = self.info['loginButton']
@@ -389,14 +406,12 @@ class Common:
         self.clickOnElement(loginButton)
                 
     @_errorHandler
-    def afterLoginRoutine(self):
+    def afterLoginRoutine(self, **kwargs):
         time.sleep(5)
-        self.driver.refresh()
-        self.waitForPage()
-        time.sleep(5)
+        self.refreshPage(additionalSleepTime = 5)
         
     @_errorHandler
-    def getMessages(self):
+    def getMessages(self, **kwargs):
         messageInfo = self.info['message']
         anyMessage = self.waitForElement(messageInfo['by'], messageInfo['value'])
         if anyMessage is not None:
@@ -406,7 +421,7 @@ class Common:
         return []
         
     @_errorHandler
-    def selectAdMessagesByTopic(self, messages, endsWithString):
+    def selectAdMessagesByTopic(self, messages, endsWithString, **kwargs):
         topicInfo = self.info['messageTopic']
         selectInfo = self.info['messageSelect']
         for message in messages:
@@ -417,13 +432,13 @@ class Common:
                 self.nSelectedMessages += 1
                 
     @_errorHandler
-    def deleteSelectedMessages(self):
+    def deleteSelectedMessages(self, **kwargs):
         deleteButtonInfo = self.info['deleteButton']
         deleteButton = self.driver.find_element(deleteButtonInfo['by'], deleteButtonInfo['value'])
         self.clickOnElement(deleteButton)
         
     @_errorHandler
-    def switchTab(self, tabName):
+    def switchTab(self, tabName, **kwargs):
         tabInfo = self.info[tabName]
         time.sleep(1)
         tab = self.driver.find_element(tabInfo['by'], tabInfo['value'])

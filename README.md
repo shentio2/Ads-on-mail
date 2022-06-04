@@ -22,7 +22,7 @@ Only wp.pl domain is implemented so far.
 7. Optionally create shortcut to moved file in startup folder so that script runs automatically when computer is on<br>
 
 # Run as .py:
-To run as .py only two first steps from above section are required
+To run as .py only three first steps from above section are required
 
 
 # Known issues:
