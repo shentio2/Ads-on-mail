@@ -10,7 +10,7 @@ Only wp.pl domain is implemented so far.
 # Setup to use as .exe:
 0. Intall all necessary libraries
 1. On Windows or Linux download chromedriver.exe and put in source file location. Make sure your Google Chrome version is compatibile with chromedriver version. As far as I know no need to download anything on MacOS as it provides safaridriver by default.
-2. Run ```initDatabase.py``` to init database with page elements info
+2. Run ```initDatabase.py``` to create database and initialize it with page elements info
 3. Make executable
     - on Windows run ```pyinstaller --onefile --add-data "database.sqlite;." adsOnMail.py```
     - on Linux/MacOS run ```pyinstaller --onefile --add-data "database.sqlite:." adsOnMail.py```

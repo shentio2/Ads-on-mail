@@ -46,9 +46,6 @@ class UserSetup:
             print('You can add shortcut to this file to autostarted programs')
             # print('Program is running in background now') # maybe sometime in the future
             input() # just not to close window immediately
-            
-    def createShortcutInAutostart(self):
-        thisFileName = os.path.basename(__file__).split('.')[0]
                     
     def _getLogin(self):
         userName = input('Enter login: ')
@@ -62,7 +59,7 @@ class UserSetup:
         print(f'Currently available domains: {", ".join(self.possibleDomains)}')
         domain = input(f'Select domain: ')
         domain = domain.lower()
-        return domain if domain in self.possibleDomains else self.getDomain()
+        return domain if domain in self.possibleDomains else self._getDomain()
     
     def _getTimeInterval(self):
         while True:
@@ -85,7 +82,6 @@ class DatabaseSetup:
         dbPath = self._getDatabasePathFromUserDataDir()
         tempDbConnection = sqlite3.connect(dbPath)
         with tempDbConnection:
-            
             try:
                 query = tempDbConnection.execute('SELECT * FROM users')
             except sqlite3.OperationalError:
@@ -272,7 +268,7 @@ class DriverSetup:
         
 class Common:
     '''
-    Base class to all domain specific classes\n
+    Base class for all domain specific classes\n
     Provide basic configuration, functions, error handling, database access, logs handling and data gathering
     '''
     def __init__(self, userLogin, userPassword, timeInterval, domain):
@@ -299,6 +295,7 @@ class Common:
     def closeDriver(self):
         if self.driver is not None:
             self.driver.close()
+            self.driver = None
     
     def getElements(self, domain):
         return self.database.getElements(domain)
@@ -421,7 +418,8 @@ class Common:
         return []
         
     @_errorHandler
-    def selectAdMessagesByTopic(self, messages, endsWithString, **kwargs):
+    def selectAdMessagesByTopic(self, messages, endsWithString, refreshOnError = True, **kwargs):
+        nSelectedMessages = 0
         topicInfo = self.info['messageTopic']
         selectInfo = self.info['messageSelect']
         for message in messages:
@@ -429,7 +427,8 @@ class Common:
             selectButton = message.find_element(selectInfo['by'], selectInfo['value'])
             if messageTopic.endswith(endsWithString):
                 self.clickOnElement(selectButton)
-                self.nSelectedMessages += 1
+                nSelectedMessages += 1
+        self.nSelectedMessages += nSelectedMessages
                 
     @_errorHandler
     def deleteSelectedMessages(self, **kwargs):
@@ -493,7 +492,6 @@ class Wp(Common):
             
             self.writeLog()
             self.goToSleep()
-        self.closeDriver()
         
 
 if __name__ == '__main__':
