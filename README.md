@@ -5,7 +5,7 @@
 - Uses database in user app data directory to store information about user data*, logs and domain specific page elements (*see Known issues section)
 - Make implementing functionality for new domains easier by providing class ```Common``` with basic configuration, functions, error handling, database access, logs handling and data gathering<br>
 
-Only wp.pl domain is implemented so far.
+Implemented domains: wp.pl, interia.pl
 
 # Setup to use as .exe:
 0. Intall all necessary libraries

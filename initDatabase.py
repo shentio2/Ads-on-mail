@@ -1,7 +1,10 @@
 import sqlite3
 
 
-domainPage = ['wp', 'https://profil.wp.pl/login/login.html']
+domainPages = [
+    ['wp', 'https://profil.wp.pl/login/login.html'],
+    ['interia', 'https://poczta.interia.pl/logowanie/']
+]
 
 elements = [
     ['wp', 'acceptCookies', 'xpath', '//button[text()="AKCEPTUJĘ I PRZECHODZĘ DO SERWISU"]'],
@@ -9,11 +12,22 @@ elements = [
     ['wp', 'passwordInput', 'id', 'password'],
     ['wp', 'loginButton', 'class name', 'sc-bdvvtL.sc-gsDKAQ.styled__SubmitButton-sc-1bs2nwv-2.ekJwFE.hIxhWw.jyhBDA'],
     ['wp', 'message', 'class name', 'stream-item__info'],
-    ['wp', 'messageTopic', 'class name', 'stream-item__senders.text-truncate'],
+    ['wp', 'messageDiscriminative', 'class name', 'stream-item__senders.text-truncate'],
     ['wp', 'messageSelect', 'class name', 'stream-item__select'],
     ['wp', 'deleteButton', 'class name', 'Button.Button--secondary'],
     ['wp', 'offertsTab', 'class name', 'Tab-text.commerce'],
-    ['wp', 'mainTab', 'class name', 'Tab-text.tooltip-theme-arrows.tooltip-target']
+    ['wp', 'mainTab', 'class name', 'Tab-text.tooltip-theme-arrows.tooltip-target'],
+    
+    ['interia', 'acceptCookies', 'class name', 'rodo-popup-agree'],
+    ['interia', 'loginInput', 'id', 'email'],
+    ['interia', 'passwordInput', 'id', 'password'],
+    ['interia', 'loginButton', 'class name', 'btn'],
+    ['interia', 'message', 'xpath', '//li[@ng-repeat="message in messages"]'],
+    ['interia', 'messageDiscriminative', 'xpath', './/span[@ng-bind="::message.fromString"]'],
+    ['interia', 'messageSelect', 'class name', 'checkbox-label'],
+    ['interia', 'deleteButton', 'xpath', '//div[@ng-click="moveCheckedToTrash();"]'],
+    ['interia', 'offertsTab', 'class name', 'icon.icon-offer'],
+    ['interia', 'mainTab', 'xpath', '//a[@href="#/folder/1"]']
 ]
 
 
@@ -25,8 +39,7 @@ with db:
                CREATE TABLE IF NOT EXISTS domainAddress (
                    domain text NOT NULL,
                    pageAddress text NOT NULL,
-                   PRIMARY KEY (domain, pageAddress)
-               )
+                   PRIMARY KEY (domain, pageAddress));
                ''')
     
     db.execute('''
@@ -35,8 +48,7 @@ with db:
                    elementName text NOT NULL,
                    by text NOT NULL,
                    value text NOT NULL,
-                   PRIMARY KEY (domain, elementName)
-               )
+                   PRIMARY KEY (domain, elementName));
                ''')
     
     db.execute('''
@@ -60,12 +72,12 @@ with db:
                 ''')
     
     
-  
+
 with db:
-    db.execute('INSERT INTO domainAddress(domain, pageAddress) VALUES (?,?);',  domainPage)
+    db.executemany('INSERT OR IGNORE INTO domainAddress(domain, pageAddress) VALUES (?,?);',  domainPages)
     
 with db:
-    db.executemany('INSERT INTO domainElements VALUES (?,?,?,?);',  elements)
+    db.executemany('INSERT OR IGNORE INTO domainElements VALUES (?,?,?,?);',  elements)
     
     
     

@@ -1,1 +1,1 @@
-nohup adsOnMail.exe &
+nohup adsOnMail.exe nosetup &

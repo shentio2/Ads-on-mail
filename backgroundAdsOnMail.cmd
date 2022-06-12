@@ -1,1 +1,1 @@
-powershell start-process adsOnMail.exe -WindowStyle Hidden
+powershell start-process adsOnMail.exe nosetup -WindowStyle Hidden
